@@ -1,0 +1,931 @@
+<!DOCTYPE html><html dir="ltr" lang="zh" class="overflow-y-scroll scroll-smooth"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><base target="_blank"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="icon" href="/favicon.ico"><link rel="canonical" href="https://emmetz.github.io/posts/android-tailscale-proxy/"><link rel="alternate" hreflang="zh" href="https://emmetz.github.io/posts/android-tailscale-proxy/"><link rel="alternate" hreflang="en" href="https://emmetz.github.io/en/posts/android-tailscale-proxy/"><link rel="alternate" hreflang="x-default" href="https://emmetz.github.io/posts/android-tailscale-proxy/"><meta name="generator" content="Astro v7.0.3"><!-- Font --><style>@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/9344e1e6ba3134db.woff") format("woff"), url("/_astro/fonts/4b36ecaec8861e3e.ttf") format("truetype");font-display:swap;font-weight:300;font-style:italic;}@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/8f4ae94aecd98e20.woff") format("woff"), url("/_astro/fonts/82b0269728335a0a.ttf") format("truetype");font-display:swap;font-weight:400;font-style:italic;}@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/20c20d9068c60dd0.woff") format("woff"), url("/_astro/fonts/b576f4f05c9dbc87.ttf") format("truetype");font-display:swap;font-weight:500;font-style:italic;}@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/5a6c2a0b85de9ba1.woff") format("woff"), url("/_astro/fonts/4b0ae898a7afcd37.ttf") format("truetype");font-display:swap;font-weight:600;font-style:italic;}@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/30d0dcc4d81c0020.woff") format("woff"), url("/_astro/fonts/e8acb21fdbc37b03.ttf") format("truetype");font-display:swap;font-weight:700;font-style:italic;}@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/bf976bcffafeb084.woff") format("woff"), url("/_astro/fonts/8436f9847213f651.ttf") format("truetype");font-display:swap;font-weight:300;font-style:normal;}@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/8a34d92a2a36603b.woff") format("woff"), url("/_astro/fonts/ccba4fb3766b1b6e.ttf") format("truetype");font-display:swap;font-weight:400;font-style:normal;}@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/a20ca4cd312f40ca.woff") format("woff"), url("/_astro/fonts/ec093fff40157157.ttf") format("truetype");font-display:swap;font-weight:500;font-style:normal;}@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/b74e6fc4049d0d63.woff") format("woff"), url("/_astro/fonts/dab775c12e1996fc.ttf") format("truetype");font-display:swap;font-weight:600;font-style:normal;}@font-face{font-family:"Google Sans Code-1a30c214885cb404";src:url("/_astro/fonts/d9c1254858362ad4.woff") format("woff"), url("/_astro/fonts/a5f75c165e55a648.ttf") format("truetype");font-display:swap;font-weight:700;font-style:normal;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:300;font-style:italic;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:400;font-style:italic;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:500;font-style:italic;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:600;font-style:italic;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:700;font-style:italic;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:300;font-style:normal;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:400;font-style:normal;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:500;font-style:normal;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:600;font-style:normal;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}@font-face{font-family:"Google Sans Code-1a30c214885cb404 fallback: Courier New";src:local("Courier New");font-display:swap;font-weight:700;font-style:normal;size-adjust:99.9837%;ascent-override:96.6157%;descent-override:28.6047%;}:root{--font-google-sans-code:"Google Sans Code-1a30c214885cb404","Google Sans Code-1a30c214885cb404 fallback: Courier New",monospace;}</style><!-- Primary meta --><title>安卓上同时使用代理与 Tailscale | Baiyx&#39;s Blog</title><meta name="title" content="安卓上同时使用代理与 Tailscale | Baiyx's Blog"><meta name="description" content="利用 Mihomo Tailscale outbound，在安卓单 VPNService 的限制下同时使用代理与 Tailnet。"><meta name="author" content="Baiyx"><link rel="sitemap" href="/sitemap-index.xml"><!-- Open Graph --><meta property="og:type" content="website"><meta property="og:site_name" content="Baiyx's Blog"><meta property="og:title" content="安卓上同时使用代理与 Tailscale | Baiyx's Blog"><meta property="og:description" content="利用 Mihomo Tailscale outbound，在安卓单 VPNService 的限制下同时使用代理与 Tailnet。"><meta property="og:url" content="https://emmetz.github.io/posts/android-tailscale-proxy/"><meta property="og:locale" content="zh_CN"><meta property="og:image" content="https://emmetz.github.io/posts/android-tailscale-proxy/index.png"><!-- Twitter / X --><meta property="twitter:card" content="summary_large_image"><meta property="twitter:url" content="https://emmetz.github.io/posts/android-tailscale-proxy/"><meta property="twitter:title" content="安卓上同时使用代理与 Tailscale | Baiyx's Blog"><meta property="twitter:description" content="利用 Mihomo Tailscale outbound，在安卓单 VPNService 的限制下同时使用代理与 Tailnet。"><meta property="twitter:image" content="https://emmetz.github.io/posts/android-tailscale-proxy/index.png"><!-- RSS autodiscovery --><link rel="alternate" type="application/rss+xml" title="Baiyx's Blog" href="https://emmetz.github.io/rss.xml/"><!-- Filled at runtime by theme.ts to match the current background colour --><meta name="theme-color" content=""><!-- Extra head content injected by child layouts (e.g. JSON-LD, article meta) --><meta property="og:type" content="article"><meta property="article:published_time" content="2026-09-22T10:15:51.000Z"><meta property="article:modified_time" content="2026-09-25T06:45:45.000Z"><script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"安卓上同时使用代理与 Tailscale | Baiyx's Blog","image":"https://emmetz.github.io/posts/android-tailscale-proxy/index.png","datePublished":"2026-09-22T10:15:51.000Z","dateModified":"2026-09-25T06:45:45.000Z","author":[{"@type":"Person","name":"Baiyx","url":"https://satna.ing"}]}</script><!--
+      Inline FOUC-prevention script: sets data-theme (the resolved theme)
+      and data-theme-mode (system | light | dark) on <html> before the
+      browser paints. Runs synchronously, no defer/async.
+    --><script>
+      (function () {
+        var MODES = ["system", "light", "dark"];
+        var stored = null;
+        try {
+          stored = localStorage.getItem("theme");
+        } catch (error) {
+          /* storage can be unavailable (private mode, blocked cookies) */
+        }
+        var mode =
+          typeof stored === "string" && MODES.indexOf(stored) !== -1
+            ? stored
+            : "system";
+        var theme =
+          mode === "system"
+            ? window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light"
+            : mode;
+        var root = document.documentElement;
+        root.setAttribute("data-theme", theme);
+        root.setAttribute("data-theme-mode", mode);
+        root.classList.toggle("dark", theme === "dark");
+      })();
+    </script><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/_astro/ClientRouter.astro_astro_type_script_index_0_lang.2i1RQzKf.js"></script><link rel="stylesheet" href="/_astro/Footer.Bv3KjqSj.css"><style>#btt-btn-container[data-astro-cid-2pdb6nbb][data-toc-open]{pointer-events:none;opacity:0;transform:translateY(.5rem)scale(.82)}.mobile-action-icon[data-astro-cid-2pdb6nbb]{width:1.5rem;height:1.5rem;transition:opacity .18s,transform .22s cubic-bezier(.2,.8,.2,1)}.mobile-action-icon-top[data-astro-cid-2pdb6nbb]{opacity:1;transform:rotate(90deg)scale(1)}.mobile-action-icon-toc[data-astro-cid-2pdb6nbb]{opacity:0;transform:rotate(-18deg)scale(.7)}[data-astro-cid-2pdb6nbb][data-button=back-to-top][data-mode=toc] .mobile-action-icon-top[data-astro-cid-2pdb6nbb]{opacity:0;transform:rotate(108deg)scale(.7)}[data-astro-cid-2pdb6nbb][data-button=back-to-top][data-mode=toc] .mobile-action-icon-toc[data-astro-cid-2pdb6nbb]{opacity:1;transform:rotate(0)scale(1)}@media (prefers-reduced-motion:reduce){.mobile-action-icon[data-astro-cid-2pdb6nbb]{transition:none}}html[data-mobile-toc-open],html[data-mobile-toc-open] body{overscroll-behavior:none;overflow:hidden}.toc-link[data-astro-cid-3tbazgeo]{color:var(--muted-foreground);opacity:1;transition:color .16s,opacity .16s;position:relative}.toc-link[data-astro-cid-3tbazgeo]:before{background:var(--accent);content:"";opacity:0;border-radius:999px;width:2px;height:.875rem;transition:opacity .16s,transform .16s;position:absolute;inset-block-start:.375rem;inset-inline-start:-1.3125rem;transform:scaleY(.35)}.toc-link[data-astro-cid-3tbazgeo][data-state=read]{color:var(--muted-foreground);opacity:1}.toc-link[data-astro-cid-3tbazgeo][data-state=active]{color:var(--accent);opacity:1;font-weight:600}.toc-link[data-astro-cid-3tbazgeo][data-state=active]:before{opacity:1;transform:scaleY(1)}.mobile-toc[data-astro-cid-3tbazgeo]{opacity:0;transform-origin:100%;width:75vw;max-width:none;height:auto;max-height:none;margin:0;inset-block-start:max(1rem, env(safe-area-inset-top));inset-block-end:max(1rem, env(safe-area-inset-bottom));inset-inline:auto 0;transform:translate(100%)}.mobile-toc[data-astro-cid-3tbazgeo][open]{animation:.22s cubic-bezier(.2,.8,.2,1) forwards mobile-toc-enter;display:block}.mobile-toc[data-astro-cid-3tbazgeo][open][data-closing]{pointer-events:none;animation:.18s forwards mobile-toc-exit}.mobile-toc[data-astro-cid-3tbazgeo][open]::backdrop{animation:.22s forwards mobile-toc-backdrop-enter}.mobile-toc[data-astro-cid-3tbazgeo][open][data-closing]::backdrop{animation:.18s forwards mobile-toc-backdrop-exit}@keyframes mobile-toc-enter{0%{opacity:0;transform:translate(100%)}to{opacity:1;transform:translate(0)}}@keyframes mobile-toc-exit{0%{opacity:1;transform:translate(0)}to{opacity:0;transform:translate(100%)}}@keyframes mobile-toc-backdrop-enter{0%{opacity:0}to{opacity:1}}@keyframes mobile-toc-backdrop-exit{0%{opacity:1}to{opacity:0}}.toc-link[data-astro-cid-3tbazgeo][data-state=unread]{color:var(--muted-foreground);opacity:.4}.toc-link[data-astro-cid-3tbazgeo]:hover,.toc-link[data-astro-cid-3tbazgeo]:focus-visible{color:var(--muted-foreground);opacity:1;text-underline-offset:.25rem;text-decoration-line:underline;text-decoration-style:dashed;text-decoration-thickness:1px}.toc-link[data-astro-cid-3tbazgeo][data-state=active]:hover,.toc-link[data-astro-cid-3tbazgeo][data-state=active]:focus-visible{color:var(--accent)}@media (prefers-reduced-motion:reduce){.mobile-toc[data-astro-cid-3tbazgeo][open],.mobile-toc[data-astro-cid-3tbazgeo][open][data-closing],.mobile-toc[data-astro-cid-3tbazgeo][open]::backdrop,.mobile-toc[data-astro-cid-3tbazgeo][open][data-closing]::backdrop,.toc-link[data-astro-cid-3tbazgeo],.toc-link[data-astro-cid-3tbazgeo]:before{transition:none;animation:none}.mobile-toc[data-astro-cid-3tbazgeo][open]{opacity:1;transform:none}}
+</style><style>[data-astro-transition-scope="astro-znvvpdic-1"] { view-transition-name: site-header; }</style><style>[data-astro-transition-scope="astro-jk7vzx2m-2"] { view-transition-name: site-header-brand; }</style><style>[data-astro-transition-scope="astro-wryqm4of-3"] { view-transition-name: site-header-nav; }</style><style>.article-table-of-contents[data-astro-cid-tqqy2vud]{margin-block:2em 1em;display:block}.article-table-of-contents[data-astro-cid-tqqy2vud] summary[data-astro-cid-tqqy2vud] h2[data-astro-cid-tqqy2vud]{display:inline}.article-table-of-contents[data-astro-cid-tqqy2vud] li[data-astro-cid-tqqy2vud]{margin-inline-start:calc(var(--toc-depth) * 1rem)}
+</style></head><body style="--page-width:var(--site-width)" class="bg-background font-app text-foreground selection:bg-accent/75 selection:text-accent-foreground flex min-h-svh flex-col"><a id="skip-to-content" href="#main-content" class="bg-background text-accent absolute inset-s-16 -top-full z-50 px-3 py-2 backdrop-blur-lg transition-all focus:top-4">Skip to content</a><header data-astro-transition-scope="astro-znvvpdic-1" class="site-layout relative z-30 flex flex-col items-center justify-between sm:flex-row"><div class="border-border bg-background relative flex w-full items-baseline justify-between border-b py-4 sm:items-center sm:py-6"><a data-astro-transition-scope="astro-jk7vzx2m-2" href="/" class="absolute z-10 py-1 text-xl leading-8 font-semibold whitespace-nowrap sm:static sm:z-auto sm:my-auto sm:text-2xl sm:leading-none">Baiyx&#39;s Blog</a><nav data-astro-transition-scope="astro-wryqm4of-3" id="nav-menu" class="flex w-full flex-col items-center sm:ms-2 sm:w-auto sm:flex-row sm:justify-end sm:space-x-4 sm:py-0"><button id="menu-btn" class="focus-outline peer self-end p-2 sm:hidden" aria-label="Open menu" aria-expanded="false" aria-controls="menu-items" data-label-open="Open menu" data-label-close="Close menu"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="hidden" viewBox="0 0 24 24" id="close-icon"><path stroke="none" d="M0 0h24v24H0z" /><path d="M18 6 6 18M6 6l12 12" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="icon icon-tabler icons-tabler-outline icon-tabler-menu-deep" viewBox="0 0 24 24" id="menu-icon"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 6h16M7 12h13M10 18h10" /></svg></button><div id="menu-items" class="border-border bg-background absolute inset-x-0 top-full z-40 mt-1.5 hidden origin-top -translate-y-2 scale-95 rounded-xl border p-2 opacity-0 shadow-lg transition-[opacity,transform] duration-200 ease-out peer-aria-expanded:translate-y-0 peer-aria-expanded:scale-100 peer-aria-expanded:opacity-100 sm:contents"><ul class="grid grid-cols-2 gap-1.5 sm:hidden"><li><a href="/posts/" aria-current="page" class="focus-outline flex items-center justify-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium bg-muted text-accent"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-4.5 shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM7 8h10M7 12h10M7 16h10" /></svg>文章</a></li><li><a href="/archives/" class="focus-outline flex items-center justify-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-foreground/80"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-4.5 shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4" /></svg>归档</a></li><li><a href="/tags/" class="focus-outline flex items-center justify-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-foreground/80"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-4.5 shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>标签</a></li><li><a href="/about/" class="focus-outline flex items-center justify-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium text-foreground/80"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-4.5 shrink-0" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M8 7a4 4 0 1 0 8 0 4 4 0 0 0-8 0M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" /></svg>关于</a></li></ul><ul class="border-border text-muted-foreground mt-2 flex items-center justify-around border-t pt-1.5 sm:hidden"><li><a href="/search/" class="focus-outline hover:text-accent flex size-9 items-center justify-center rounded-lg" title="Search" aria-label="Search"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-5.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6" /></svg></a></li><li><a href="/en/posts/android-tailscale-proxy/" class="focus-outline hover:text-accent flex size-9 items-center justify-center rounded-lg" lang="en" hreflang="en" title="Switch to English" aria-label="Switch to English"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-5.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 5h7M9 3v2c0 4.418-2.239 8-5 8" /><path d="M5 9c0 2.144 2.952 3.908 6.7 4M12 20l4-9 4 9M19.1 18h-6.2" /></svg></a></li><li><button id="theme-btn-mobile" class="theme-toggle focus-outline hover:text-accent relative flex size-9 items-center justify-center rounded-lg" title="切换主题" aria-label="切换主题" aria-live="polite" data-label-action="切换主题" data-label-system="跟随系统" data-label-light="浅色" data-label-dark="深色"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 opacity-0 transition-all duration-300 theme-system:scale-100 theme-system:rotate-0 theme-system:opacity-100" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 5a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM7 20h10M9 16v4M15 16v4" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 opacity-0 transition-all duration-300 theme-light:scale-100 theme-light:rotate-0 theme-light:opacity-100" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M14.828 14.828a4 4 0 1 0-5.656-5.656 4 4 0 0 0 5.656 5.656M6.343 17.657l-1.414 1.414M6.343 6.343 4.929 4.929M17.657 6.343l1.414-1.414M17.657 17.657l1.414 1.414M4 12H2M12 4V2M20 12h2M12 20v2" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 opacity-0 transition-all duration-300 theme-dark:scale-100 theme-dark:rotate-0 theme-dark:opacity-100" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 2.992z" /></svg></button></li><li><a href="/rss.xml" class="focus-outline hover:text-accent flex size-9 items-center justify-center rounded-lg" title="RSS feed" aria-label="RSS feed"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-5.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 19a1 1 0 1 0 2 0 1 1 0 1 0-2 0M4 4a16 16 0 0 1 16 16M4 11a9 9 0 0 1 9 9" /></svg></a></li></ul><ul class="[&amp;&gt;li&gt;a]:hover:text-accent hidden sm:mt-0 sm:flex sm:w-auto sm:gap-x-5 sm:gap-y-0 sm:[&amp;&gt;li]:h-8 [&amp;&gt;li&gt;a]:block [&amp;&gt;li&gt;a]:px-4 [&amp;&gt;li&gt;a]:py-3 [&amp;&gt;li&gt;a]:text-center [&amp;&gt;li&gt;a]:font-medium sm:[&amp;&gt;li&gt;a]:px-2 sm:[&amp;&gt;li&gt;a]:py-1"><li><a href="/posts/" class="active-nav">文章</a></li><li><a href="/tags/">标签</a></li><li><a href="/about/">关于</a></li><li><a href="/archives/" title="Archives" aria-label="Archives" class="group inline-flex items-center gap-1 hover:text-accent focus-outline flex size-full justify-center p-3 sm:relative sm:size-8 sm:p-0"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="hidden sm:absolute sm:top-1/2 sm:left-1/2 sm:block sm:size-6 sm:-translate-x-1/2 sm:-translate-y-1/2" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v0a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8M10 12h4" /></svg><span class="sm:sr-only">归档</span></a></li><li class="flex items-center justify-center"><a href="/search/" title="Search" aria-label="Search" class="group inline-flex items-center gap-1 hover:text-accent focus-outline relative size-8"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-1/2 left-1/2 size-6 -translate-x-1/2 -translate-y-1/2" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 10a7 7 0 1 0 14 0 7 7 0 1 0-14 0M21 21l-6-6" /></svg><span class="sr-only">搜索</span></a></li><li class="flex items-center justify-center"><a href="/en/posts/android-tailscale-proxy/" class="focus-outline hover:[&amp;&gt;svg]:stroke-accent relative size-12 sm:size-8" lang="en" hreflang="en" title="Switch to English" aria-label="Switch to English"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-1/2 left-1/2 size-6 -translate-x-1/2 -translate-y-1/2" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 5h7M9 3v2c0 4.418-2.239 8-5 8" /><path d="M5 9c0 2.144 2.952 3.908 6.7 4M12 20l4-9 4 9M19.1 18h-6.2" /></svg><span class="sr-only">Switch to English</span></a></li><li class="flex items-center justify-center"><button id="theme-btn" class="theme-toggle focus-outline hover:[&amp;&gt;svg]:stroke-accent relative size-12 p-4 sm:size-8" title="切换主题" aria-label="切换主题" aria-live="polite" data-label-action="切换主题" data-label-system="跟随系统" data-label-light="浅色" data-label-dark="深色"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 opacity-0 transition-all duration-300 theme-system:scale-100 theme-system:rotate-0 theme-system:opacity-100" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 5a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1zM7 20h10M9 16v4M15 16v4" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 opacity-0 transition-all duration-300 theme-light:scale-100 theme-light:rotate-0 theme-light:opacity-100" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M14.828 14.828a4 4 0 1 0-5.656-5.656 4 4 0 0 0 5.656 5.656M6.343 17.657l-1.414 1.414M6.343 6.343 4.929 4.929M17.657 6.343l1.414-1.414M17.657 17.657l1.414 1.414M4 12H2M12 4V2M20 12h2M12 20v2" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="absolute top-[50%] left-[50%] translate-[-50%] scale-0 rotate-90 opacity-0 transition-all duration-300 theme-dark:scale-100 theme-dark:rotate-0 theme-dark:opacity-100" viewBox="0 0 24 24" aria-hidden="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M12 3h.393a7.5 7.5 0 0 0 7.92 12.446A9 9 0 1 1 12 2.992z" /></svg></button></li></ul></div></nav></div></header><script type="module">function e(){let e=document.querySelector(`#menu-btn`),t=document.querySelector(`#menu-items`),n=document.querySelector(`#menu-icon`),r=document.querySelector(`#close-icon`);if(!e||!t||!n||!r)return;let i=e.dataset.labelOpen??`Open menu`,a=e.dataset.labelClose??`Close menu`;e.addEventListener(`click`,()=>{let o=e.getAttribute(`aria-expanded`)===`true`;e.setAttribute(`aria-expanded`,o?`false`:`true`),e.setAttribute(`aria-label`,o?i:a),t.classList.toggle(`hidden`),n.classList.toggle(`hidden`),r.classList.toggle(`hidden`)})}function t(){let e=document.getElementById(`skip-to-content`);e&&e.addEventListener(`click`,e=>{if(e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button!==0)return;e.preventDefault();let t=document.getElementById(`main-content`);t&&(t.setAttribute(`tabindex`,`-1`),t.addEventListener(`blur`,()=>t.removeAttribute(`tabindex`),{once:!0}),t.focus(),t.scrollIntoView({behavior:`smooth`}))})}e(),document.addEventListener(`astro:after-swap`,e),t(),document.addEventListener(`astro:after-swap`,t);</script><div class="site-layout flex items-center justify-start"><a id="back-button" href="/" class="group inline-flex items-center gap-1 hover:text-accent focus-outline hover:text-foreground/75 -ms-2 mt-8 mb-2"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 rtl:rotate-180" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m15 6-6 6 6 6" /></svg><span>返回</span></a></div><script type="module">function e(){let e=document.querySelector(`#back-button`),t=sessionStorage.getItem(`backUrl`);t&&e&&(e.href=t)}document.addEventListener(`astro:page-load`,e),e();</script><main id="main-content" class="site-layout xl:grid xl:grid-cols-[minmax(0,var(--reading-width))_minmax(13rem,1fr)] xl:items-start xl:gap-x-12"><div class="min-w-0" data-pagefind-body><h1 style="view-transition-name:android-tailscale-proxy" class="text-accent inline-block text-2xl font-bold sm:text-3xl">安卓上同时使用代理与 Tailscale</h1><div class="my-2 flex flex-wrap items-center gap-x-3 gap-y-1"><div class="text-muted-foreground flex items-center gap-x-2"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 min-w-5.5" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM16 3v4M8 3v4M4 11h16M7 14h.013M10.01 14h.005M13.01 14h.005M16.015 14h.005M13.015 17h.005M7.01 17h.005M10.01 17h.005" /></svg><span class="flex flex-wrap items-center gap-x-1.5 text-sm sm:text-base"><time datetime="2026-09-22T10:15:51.000Z">2026/09/22</time><span aria-hidden="true">·</span><span>更新于 <time datetime="2026-09-25T06:45:45.000Z">2026/09/25</time></span></span></div><span aria-hidden="true" class="text-muted-foreground">·</span><span class="text-muted-foreground flex items-center gap-x-2 text-sm sm:text-base"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 min-w-5.5" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0" /><path d="M12 7v5l3 3" /></svg>阅读约 6 分钟</span></div><ul class="my-2 flex flex-wrap gap-2"><li><a href="/tags/android/" class="text-muted-foreground inline-flex items-center gap-0.5 rounded-full px-2.5 py-0.5 text-sm bg-foreground/5 hover:bg-foreground/10 hover:text-accent focus-visible:text-accent focus-visible:outline-2 focus-visible:outline-accent"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-4 opacity-80" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>Android</a></li><li><a href="/tags/tailscale/" class="text-muted-foreground inline-flex items-center gap-0.5 rounded-full px-2.5 py-0.5 text-sm bg-foreground/5 hover:bg-foreground/10 hover:text-accent focus-visible:text-accent focus-visible:outline-2 focus-visible:outline-accent"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-4 opacity-80" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>Tailscale</a></li><li><a href="/tags/mihomo/" class="text-muted-foreground inline-flex items-center gap-0.5 rounded-full px-2.5 py-0.5 text-sm bg-foreground/5 hover:bg-foreground/10 hover:text-accent focus-visible:text-accent focus-visible:outline-2 focus-visible:outline-accent"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-4 opacity-80" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 9h14M5 15h14M11 4 7 20M17 4l-4 16" /></svg>Mihomo</a></li></ul><article id="article" class="mt-8 w-full app-prose max-w-app prose-pre:bg-(--shiki-light-bg) dark:prose-pre:bg-(--shiki-dark-bg)"><figure><img src="/_astro/android-tailscale-proxy-light.A46LGNWs_1h4RF9.webp" alt="Tailscale + Mihomo" loading="lazy" decoding="async" width="1233" height="485" class="dark:hidden"><img src="/_astro/android-tailscale-proxy-dark.B4RpeBEQ_1MvDfe.webp" alt="Tailscale + Mihomo" loading="lazy" decoding="async" width="1233" height="485" class="hidden dark:block"><figcaption class="text-center">Created by Excalidraw</figcaption></figure>
+<details class="article-table-of-contents" data-astro-cid-tqqy2vud><summary data-astro-cid-tqqy2vud><h2 data-astro-cid-tqqy2vud>目录</h2></summary><nav aria-label="目录" data-astro-cid-tqqy2vud><ul data-astro-cid-tqqy2vud><li style="--toc-depth: 0" data-astro-cid-tqqy2vud><a href="#前言" data-astro-cid-tqqy2vud>前言</a></li><li style="--toc-depth: 0" data-astro-cid-tqqy2vud><a href="#实施条件" data-astro-cid-tqqy2vud>实施条件</a></li><li style="--toc-depth: 0" data-astro-cid-tqqy2vud><a href="#配置" data-astro-cid-tqqy2vud>配置</a></li><li style="--toc-depth: 1" data-astro-cid-tqqy2vud><a href="#申请-tailscale-auth-key" data-astro-cid-tqqy2vud>申请 Tailscale Auth Key</a></li><li style="--toc-depth: 1" data-astro-cid-tqqy2vud><a href="#覆写脚本" data-astro-cid-tqqy2vud>覆写脚本</a></li><li style="--toc-depth: 1" data-astro-cid-tqqy2vud><a href="#测试" data-astro-cid-tqqy2vud>测试</a></li><li style="--toc-depth: 1" data-astro-cid-tqqy2vud><a href="#subnet-router" data-astro-cid-tqqy2vud>Subnet Router</a></li><li style="--toc-depth: 0" data-astro-cid-tqqy2vud><a href="#小结" data-astro-cid-tqqy2vud>小结</a></li></ul></nav></details>
+<h2 id="前言">前言</h2>
+<p>最近在研究如何使用 Easytier 和 Tailscale 组网，好在手机上利用 ssh 监督电脑上的 agent 干活（感谢 Herdr 让手机也能有相当不错的终端 Agent 使用体验）。但我很快发现如果连了 Tailscale，就不是使用代理，这样我就无法在床上一边科学上网看漫画摸鱼一边使用 ssh。想完成上述目标只能不断切换 VPN，非常麻烦。</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="text"><code><span class="line"><span>打开 Clash</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Tailscale 被断开</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>打开 Tailscale</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Clash 被断开</span></span></code></pre>
+<p>不过最近调研 Tailscale 的时候发现 Mihomo 五月就支持 <a href="https://github.com/MetaCubeX/mihomo/pull/2786">Tailscale outbound</a> 了。于是上述问题有了一个非常优雅的解决方案。</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="text"><code><span class="line"><span>Android Apps</span></span>
+<span class="line"><span>     │</span></span>
+<span class="line"><span>     ▼</span></span>
+<span class="line"><span>VPNService</span></span>
+<span class="line"><span>     │</span></span>
+<span class="line"><span>     ▼</span></span>
+<span class="line"><span>Mihomo TUN</span></span>
+<span class="line"><span>     │</span></span>
+<span class="line"><span>     ├── 普通 Internet</span></span>
+<span class="line"><span>     │       │</span></span>
+<span class="line"><span>     │       ▼</span></span>
+<span class="line"><span>     │    机场节点</span></span>
+<span class="line"><span>     │</span></span>
+<span class="line"><span>     └── Tailnet</span></span>
+<span class="line"><span>             │</span></span>
+<span class="line"><span>             ▼</span></span>
+<span class="line"><span>        TS-OUT</span></span>
+<span class="line"><span>             │</span></span>
+<span class="line"><span>             ▼</span></span>
+<span class="line"><span>       Tailscale tsnet</span></span>
+<span class="line"><span>             │</span></span>
+<span class="line"><span>             ▼</span></span>
+<span class="line"><span>        Tailnet Peers</span></span></code></pre>
+<p>这样既可以正常使用代理，又能通过 <code>100.x.x.x</code> 访问 Tailnet 中的其他设备。</p>
+<h2 id="实施条件">实施条件</h2>
+<ul>
+<li>一台安卓手机</li>
+<li><strong>支持覆写脚本功能</strong>的，基于 Mihomo 内核的 Android 代理客户端</li>
+<li>一个 Tailscale 账号（免费的）</li>
+</ul>
+<p>本文测试时使用 Bettbox <code>1.19.2</code>。</p>
+<p>根据 <a href="https://wiki.metacubex.one/en/config/proxies/tailscale/">Mihomo Wiki</a> 中说明，Tailscale outbound 需要修改配置文件，应该在配置的 <code>proxies</code> 中添加：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="yaml"><code><span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">- </span><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA">name</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D6DEEB">:</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D"> TS-OUT</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA">  type</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D6DEEB">:</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D"> tailscale</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA">  hostname</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D6DEEB">:</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D"> android-mihomo</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA">  auth-key</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D6DEEB">:</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D"> tskey-auth-xxxxxxxx</span></span></code></pre>
+<p>但是每次更新订阅，配置文件都会刷新覆盖，所有手动编辑配置文件显然不合适。此时就可以使用客户端提供的 JS 覆写功能，每次更新时自动把上述配置添加到配置文件中。</p>
+<h2 id="配置">配置</h2>
+<h3 id="申请-tailscale-auth-key">申请 Tailscale Auth Key</h3>
+<p>前往 Tailscale 控制面板申请 Auth Key：Settings → Keys → Generate Auth Key。<a href="https://console.tailscale.com/admin/settings/keys">点击跳转</a></p>
+<h3 id="覆写脚本">覆写脚本</h3>
+<p>不想自己研究了，直接交给 GPT 老师：</p>
+<pre class="astro-code astro-code-themes min-light night-owl has-highlighted" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="javascript"><code><span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> Compatible_With_Bettbox</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#24292EFF;--shiki-dark:#C792EA">{</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">ruleOptionsEnable</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#FF5874;--shiki-dark-font-style:italic">true</span><span style="--shiki-light:#24292EFF;--shiki-dark:#C792EA">}</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">function</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> main</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D9F5DD">(</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">c</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D9F5DD">)</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">{</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">  const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> N</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">TS-OUT</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">G</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">TAILNET</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // 仅首次注册时需要填写 Auth Key。</span></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // 注册成功后保持为空即可，节点身份已保存在 state-dir 中。</span></span>
+<span class="line highlighted"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">  const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> AUTH</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">tskey-auth-xxxxxxxx</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">; </span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // 有 Tailscale Subnet Router 就填 CIDR，没有保持 [] 即可。</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">  const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> SUBNETS</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">    // &quot;192.168.31.0/24&quot;,</span></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">    // &quot;10.10.0.0/16&quot;,</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">  ];</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">proxies</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">Array</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">isArray</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">proxies</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">)</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">?</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">proxies</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[];</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">  c</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">proxy-groups</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">Array</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">isArray</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">c</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">proxy-groups</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">])</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">    ?</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">c</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">proxy-groups</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[];</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">rules</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">Array</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">isArray</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">rules</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">)</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">?</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">rules</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[];</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">dns</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">dns</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">||</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">{};</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // 删除旧 TS-OUT，防止覆写重复执行后产生重复节点。</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">proxies</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">c</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#FAF39F;--shiki-dark-font-style:italic">proxies</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">filter</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">x</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=&gt;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">x</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">&amp;&amp;</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">x</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">name</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">!==</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">N</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">  const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> ts</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#24292EFF;--shiki-dark:#C792EA">{</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">    name</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">N</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">    type</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">tailscale</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line highlighted"><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">    hostname</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">bettbox-android</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic"> // 填写你想要的 Tailscale Node 名称</span></span>
+<span class="line"><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">    &quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">state-dir</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">./tailscale/bettbox</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line"><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">    &quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">accept-routes</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#FF5874;--shiki-dark-font-style:italic">true</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">    ephemeral</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#FF5874;--shiki-dark-font-style:italic">false</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">    udp</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">:</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#FF5874;--shiki-dark-font-style:italic">true</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#C792EA">  }</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">  if</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">AUTH</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">) </span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">ts</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">auth-key</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">AUTH</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#FAF39F;--shiki-dark-font-style:italic">proxies</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">push</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">ts</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">);</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // 创建一个只用于 UI 展示的策略组。</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">  c</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">proxy-groups</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">c</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">proxy-groups</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">filter</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">    x</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=&gt;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">x</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">&amp;&amp;</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">x</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">name</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">!==</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">G</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">  );</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">  c</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">proxy-groups</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">unshift</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">({</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">    name</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D6DEEB">:</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">G</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">    type</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D6DEEB">:</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">select</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">    proxies</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D6DEEB">:</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">N</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // 清除之前脚本产生的规则。</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">rules</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">c</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#FAF39F;--shiki-dark-font-style:italic">rules</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">filter</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">r</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=&gt;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">{</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">    if</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA">typeof</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0"> r</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">!==</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">string</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">) </span><span style="--shiki-light:#D32F2F;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">return</span><span style="--shiki-light:#1976D2;--shiki-dark:#FF5874"> true</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">    const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> p</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">r</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">split</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">,</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">);</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">    return</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0"> p</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#1976D2;--shiki-dark:#F78C6C">2</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">!==</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">N</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">&amp;&amp;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">p</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#1976D2;--shiki-dark:#F78C6C">2</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">!==</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">G</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">;</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">  });</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // Tailnet 地址直接进入 TS-OUT。</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">  const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> tsRules</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span></span>
+<span class="line"><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">    `</span><span style="--shiki-light:#22863A;--shiki-light-font-style:inherit;--shiki-dark:#ECC48D;--shiki-dark-font-style:italic">IP-CIDR,100.64.0.0/10,</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">${</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">N</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">}</span><span style="--shiki-light:#22863A;--shiki-light-font-style:inherit;--shiki-dark:#ECC48D;--shiki-dark-font-style:italic">,no-resolve</span><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">`</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line"><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">    `</span><span style="--shiki-light:#22863A;--shiki-light-font-style:inherit;--shiki-dark:#ECC48D;--shiki-dark-font-style:italic">IP-CIDR6,fd7a:115c:a1e0::/48,</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">${</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">N</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">}</span><span style="--shiki-light:#22863A;--shiki-light-font-style:inherit;--shiki-dark:#ECC48D;--shiki-dark-font-style:italic">,no-resolve</span><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">`</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">    // Tailnet 的 MagicDNS 域名都以 ts.net 结尾，</span></span>
+<span class="line"><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">    `</span><span style="--shiki-light:#22863A;--shiki-light-font-style:inherit;--shiki-dark:#ECC48D;--shiki-dark-font-style:italic">DOMAIN-SUFFIX,ts.net,</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">${</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">N</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">}</span><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">`</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">  ];</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // Tailscale Subnet Router。</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">  for</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> net</span><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA"> of</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF"> SUBNETS</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">){</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">    tsRules</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">push</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">      net</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">includes</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">(</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">:</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">)</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">        ?</span><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">`</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">IP-CIDR6,</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">${</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">net</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">}</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">,</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">${</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">N</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">}</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">,no-resolve</span><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">`</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">        :</span><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">`</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">IP-CIDR,</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">${</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">net</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">}</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">,</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">${</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">N</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">}</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">,no-resolve</span><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">`</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">    );</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">  }</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // Tailscale 规则必须放在机场规则前面。</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">rules</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA">    ...</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0">tsRules</span><span style="--shiki-light:#212121;--shiki-dark:#5F7E97">,</span></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA">    ...</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">rules</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">  ];</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#C2C3C5;--shiki-light-font-style:inherit;--shiki-dark:#637777;--shiki-dark-font-style:italic">  // MagicDNS：同样直接匹配 ts.net 后缀。</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#FAF39F;--shiki-dark-font-style:italic">dns</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">enable</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#1976D2;--shiki-dark:#FF5874">true</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">;</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">dns</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">nameserver-policy</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">    c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">dns</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">nameserver-policy</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">||</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">{};</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#7FDBCA;--shiki-dark-font-style:italic">  c</span><span style="--shiki-light:#24292EFF;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">.</span><span style="--shiki-light:#24292EFF;--shiki-dark:#BAEBE2">dns</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">nameserver-policy</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">][</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">+.ts.net</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">]</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span></span>
+<span class="line"><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">    `</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">ts://</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">${</span><span style="--shiki-light:#1976D2;--shiki-dark:#82AAFF">N</span><span style="--shiki-light:#D32F2F;--shiki-dark:#D3423E">}</span><span style="--shiki-light:#22863A;--shiki-dark:#D6DEEB">`</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">  ];</span></span>
+<span class="line"></span>
+<span class="line"><span style="--shiki-light:#D32F2F;--shiki-light-font-style:inherit;--shiki-dark:#C792EA;--shiki-dark-font-style:italic">  return</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D7DBE0"> c</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">;</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">}</span></span></code></pre>
+<p>实际需要填写的只有 Auth Key（以及可选的 Subnet Router 网段）：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="javascript"><code><span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> AUTH</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">tskey-auth-xxxxxxxx</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">;</span></span></code></pre>
+<p>脚本不需要 Tailnet DNS Name：Tailscale 的 MagicDNS 域名统一形如 <code>&lt;tailnet-name&gt;.ts.net</code>，所以分流规则和 DNS 策略都直接匹配 <code>ts.net</code> 后缀，任何 Tailnet 都适用。</p>
+<div class="callout" data-callout="tip" data-collapsible="false"><div class="callout-title"><div class="callout-title-icon" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg></div><div class="callout-title-text">Tip</div></div><div class="callout-content"><p>这里 GPT 老师给我设计了一个 TAILNET 策略组，只是为了在 Bettbox UI 中能看到 Tailnet 流量的去向。实际上真正的 Tailnet 流量规则并没有指向 <code>TAILNET</code>，而是直接指向 <code>TS-OUT</code>。这样可以避免策略组意外选中 <code>DIRECT</code> 后导致 Tailscale 失效。</p></div></div>
+<h3 id="测试">测试</h3>
+<p>按照上述配置后，打开代理后，可以利用 Termius 等 SSH 客户端直接访问 Tailnet 中的其他设备：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="bash"><code><span class="line"><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">ssh</span><span style="--shiki-light:#2B5581;--shiki-dark:#ECC48D"> user@100.x.x.x</span></span>
+<span class="line"><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">ssh</span><span style="--shiki-light:#2B5581;--shiki-dark:#ECC48D"> user@server.</span><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA">&lt;</span><span style="--shiki-light:#2B5581;--shiki-dark:#ECC48D">tailnet-nam</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">e</span><span style="--shiki-light:#D32F2F;--shiki-dark:#7FDBCA">&gt;</span><span style="--shiki-light:#2B5581;--shiki-dark:#ECC48D">.ts.net</span></span></code></pre>
+<p>到此我已经成功连上了打开 SSH 服务的电脑了✌️。</p>
+<h3 id="subnet-router">Subnet Router</h3>
+<p>如果 Tailnet 中还有一台设备发布了：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="bash"><code><span class="line"><span style="--shiki-light:#6F42C1;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic">tailscale</span><span style="--shiki-light:#2B5581;--shiki-dark:#ECC48D"> up</span><span style="--shiki-light:#2B5581;--shiki-dark:#82AAFF"> --advertise-routes=192.168.31.0/24</span></span></code></pre>
+<p>并且已经在 Tailscale Admin Console 中批准，那么可以修改：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="javascript"><code><span class="line"><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">const</span><span style="--shiki-light:#1976D2;--shiki-light-font-style:inherit;--shiki-dark:#82AAFF;--shiki-dark-font-style:italic"> SUBNETS</span><span style="--shiki-light:#D32F2F;--shiki-dark:#C792EA">=</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">[</span></span>
+<span class="line"><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">  &quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">192.168.31.0/24</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#212121;--shiki-dark:#D6DEEB">,</span></span>
+<span class="line"><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">];</span></span></code></pre>
+<p>脚本会生成：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="text"><code><span class="line"><span>IP-CIDR,192.168.31.0/24,TS-OUT,no-resolve</span></span></code></pre>
+<p>之后 Android 就可以通过 Bettbox 访问：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="text"><code><span class="line"><span>192.168.31.10</span></span>
+<span class="line"><span>192.168.31.20</span></span>
+<span class="line"><span>...</span></span></code></pre>
+<p>这里需要注意两个不同层次：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="javascript"><code><span class="line"><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#22863A;--shiki-dark:#ECC48D">accept-routes</span><span style="--shiki-light:#22863A;--shiki-dark:#D9F5DD">&quot;</span><span style="--shiki-light:#24292EFF;--shiki-dark:#D6DEEB">:</span><span style="--shiki-light:#1976D2;--shiki-dark:#FF5874">true</span></span></code></pre>
+<p>表示：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="text"><code><span class="line"><span>Tailscale tsnet</span></span>
+<span class="line"><span>接受 Tailnet 发布的 Subnet Route</span></span></code></pre>
+<p>而：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="text"><code><span class="line"><span>IP-CIDR,192.168.31.0/24,TS-OUT</span></span></code></pre>
+<p>表示：</p>
+<pre class="astro-code astro-code-themes min-light night-owl" style="--shiki-light:#24292eff;--shiki-dark:#d6deeb;--shiki-light-bg:#ffffff;--shiki-dark-bg:#011627;overflow-x:auto;--file-name-offset:-1.75rem" tabindex="0" data-language="text"><code><span class="line"><span>Mihomo</span></span>
+<span class="line"><span>把这个目标网段交给 TS-OUT</span></span></code></pre>
+<p>两者不能完全互相替代。</p>
+<h2 id="小结">小结</h2>
+<p>通过上述配置，我们成功地在 Android 上实现了 Bettbox(Mihomo) 与 Tailscale 的集成，能一边摸鱼一边干活了（）。非常简单但是很实用。</p>
+<p>除了 Tailscale，两个星期前 Mihomo 还支持了 <a href="https://github.com/MetaCubeX/mihomo/pull/3194">EasyTier</a> 的出口。</p></article><hr class="my-8 border-dashed"><div id="btt-btn-container" class="fixed inset-e-4 bottom-8 z-50 md:sticky md:inset-e-auto md:float-end md:me-1 translate-y-14 opacity-0 transition-[opacity,translate,transform] duration-200" data-astro-cid-2pdb6nbb><button data-button="back-to-top" data-mode="top" data-back-to-top-label="Back to top" data-table-of-contents-label="目录" aria-controls="mobile-table-of-contents" aria-expanded="false" aria-label="Back to top" class="group bg-background relative flex items-center justify-center px-2 py-1 size-14 rounded-full shadow-xl md:h-8 md:w-fit md:gap-1 md:rounded-md md:shadow-none md:focus-visible:rounded-none md:bg-background/35 md:bg-clip-padding md:backdrop-blur-lg" data-astro-cid-2pdb6nbb><span id="progress-indicator" class="absolute inset-0 -z-10 block size-14 scale-110 rounded-full bg-transparent md:hidden md:h-8 md:rounded-md" data-astro-cid-2pdb6nbb></span><span class="relative grid size-6 place-items-center md:hidden" data-astro-cid-2pdb6nbb><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mobile-action-icon mobile-action-icon-top absolute" viewBox="0 0 24 24" data-button-icon="back-to-top" data-astro-cid-2pdb6nbb="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M5 12h14M5 12l6 6M5 12l6-6" /></svg><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="mobile-action-icon mobile-action-icon-toc absolute" viewBox="0 0 24 24" data-button-icon="table-of-contents" data-astro-cid-2pdb6nbb="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M4 6h16M7 12h13M10 18h10" /></svg></span><span class="group-hover:text-accent sr-only text-sm md:not-sr-only" data-astro-cid-2pdb6nbb><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-4" viewBox="0 0 24 24" data-astro-cid-2pdb6nbb="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M12 5v14M16 9l-4-4M8 9l4-4" /></svg>返回顶部</span></button></div><script data-astro-rerun>
+  function backToTop() {
+    window.__backToTopCleanup?.();
+
+    const rootElement = document.documentElement;
+    const btnContainer = document.querySelector("#btt-btn-container");
+    const backToTopBtn = document.querySelector("[data-button='back-to-top']");
+    const progressIndicator = document.querySelector("#progress-indicator");
+    // The TOC dialog is rendered after this button, so on a full page load it
+    // is not parsed yet when this inline script runs; look it up lazily.
+    const getMobileTableOfContents = () =>
+      document.querySelector("[data-mobile-table-of-contents]");
+
+    if (!rootElement || !btnContainer || !backToTopBtn || !progressIndicator)
+      return;
+
+    const abortController = new AbortController();
+    const mobileMediaQuery = window.matchMedia("(max-width: 767px)");
+    const reducedMotionMediaQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    );
+    const directionThreshold = 6;
+    let lastScrollTop = rootElement.scrollTop;
+    let scrollDirection = "up";
+    let lastVisible = null;
+    let currentMode = "top";
+
+    function updateMode() {
+      const nextMode =
+        mobileMediaQuery.matches &&
+        scrollDirection === "down" &&
+        getMobileTableOfContents()
+          ? "toc"
+          : "top";
+
+      if (nextMode === currentMode) return;
+
+      currentMode = nextMode;
+      backToTopBtn.dataset.mode = currentMode;
+      backToTopBtn.setAttribute(
+        "aria-label",
+        currentMode === "toc"
+          ? backToTopBtn.dataset.tableOfContentsLabel
+          : backToTopBtn.dataset.backToTopLabel
+      );
+    }
+
+    backToTopBtn.addEventListener(
+      "click",
+      () => {
+        const mobileTableOfContents = getMobileTableOfContents();
+        if (
+          currentMode === "toc" &&
+          mobileTableOfContents instanceof HTMLDialogElement
+        ) {
+          delete mobileTableOfContents.dataset.closing;
+          btnContainer.dataset.tocOpen = "";
+          rootElement.dataset.mobileTocOpen = "";
+          mobileTableOfContents.showModal();
+          backToTopBtn.setAttribute("aria-expanded", "true");
+          requestAnimationFrame(() => {
+            mobileTableOfContents
+              .querySelector("[data-mobile-toc-scroll]")
+              ?.focus({ preventScroll: true });
+            mobileTableOfContents
+              .querySelector("[data-toc-link][data-state='active']")
+              ?.scrollIntoView({ block: "center", inline: "nearest" });
+          });
+          return;
+        }
+
+        window.scrollTo({
+          top: 0,
+          behavior: reducedMotionMediaQuery.matches ? "auto" : "smooth",
+        });
+      },
+      { signal: abortController.signal }
+    );
+
+    function handleScroll() {
+      const scrollTotal = rootElement.scrollHeight - rootElement.clientHeight;
+      const scrollTop = rootElement.scrollTop;
+      const scrollDelta = scrollTop - lastScrollTop;
+      const scrollPercent =
+        scrollTotal > 0 ? Math.floor((scrollTop / scrollTotal) * 100) : 0;
+
+      if (Math.abs(scrollDelta) >= directionThreshold) {
+        scrollDirection = scrollDelta > 0 ? "down" : "up";
+        lastScrollTop = scrollTop;
+        updateMode();
+      }
+
+      progressIndicator.style.setProperty(
+        "background-image",
+        `conic-gradient(var(--accent), var(--accent) ${scrollPercent}%, transparent ${scrollPercent}%)`
+      );
+
+      const isVisible = scrollTop >= rootElement.clientHeight * 1.5;
+
+      if (isVisible !== lastVisible) {
+        btnContainer.classList.toggle("opacity-100", isVisible);
+        btnContainer.classList.toggle("translate-y-0", isVisible);
+        btnContainer.classList.toggle("opacity-0", !isVisible);
+        btnContainer.classList.toggle("translate-y-14", !isVisible);
+        lastVisible = isVisible;
+      }
+    }
+
+    let ticking = false;
+    document.addEventListener(
+      "scroll",
+      () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            handleScroll();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      },
+      { passive: true, signal: abortController.signal }
+    );
+    mobileMediaQuery.addEventListener("change", updateMode, {
+      signal: abortController.signal,
+    });
+
+    window.__backToTopCleanup = () => abortController.abort();
+
+    updateMode();
+    handleScroll();
+  }
+  backToTop();
+</script><div class="flex flex-none flex-col items-center justify-center gap-1 md:items-start"><span class="italic">分享本文：</span><div class="text-center"><a href="https://wa.me/?text=https://emmetz.github.io/posts/android-tailscale-proxy/" title="Share this post on Whatsapp" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m3 21 1.65-3.8a9 9 0 1 1 3.4 2.9z" /><path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0za5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" /></svg><span class="sr-only">Share this post on Whatsapp</span></a><a href="https://www.facebook.com/sharer.php?u=https://emmetz.github.io/posts/android-tailscale-proxy/" title="Share this post on Facebook" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 10v4h3v7h4v-7h3l1-4h-4V8a1 1 0 0 1 1-1h3V3h-3a5 5 0 0 0-5 5v2z" /></svg><span class="sr-only">Share this post on Facebook</span></a><a href="https://x.com/intent/post?url=https://emmetz.github.io/posts/android-tailscale-proxy/" title="Share this post on X" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m4 4 11.733 16H20L8.267 4zM4 20l6.768-6.768m2.46-2.46L20 4" /></svg><span class="sr-only">Share this post on X</span></a><a href="https://t.me/share/url?url=https://emmetz.github.io/posts/android-tailscale-proxy/" title="Share this post on Telegram" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m15 10-4 4 6 6 4-16-18 7 4 2 2 6 3-4" /></svg><span class="sr-only">Share this post on Telegram</span></a><a href="https://pinterest.com/pin/create/button/?url=https://emmetz.github.io/posts/android-tailscale-proxy/" title="Share this post on Pinterest" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="m8 20 4-9M10.7 14c.437 1.263 1.43 2 2.55 2 2.071 0 3.75-1.554 3.75-4a5 5 0 1 0-9.7 1.7" /><path d="M3 12a9 9 0 1 0 18 0 9 9 0 1 0-18 0" /></svg><span class="sr-only">Share this post on Pinterest</span></a><a href="mailto:?subject=See%20this%20post&amp;body=https://emmetz.github.io/posts/android-tailscale-proxy/" title="Share this post via email" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-1 hover:text-accent scale-90 p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m3 7 9 6 9-6" /></svg><span class="sr-only">Share this post via email</span></a></div></div><hr class="my-8 border-dashed"><div data-pagefind-ignore class="my-8 grid grid-cols-1 gap-6 sm:grid-cols-2"></div></div><aside class="hidden max-h-[calc(100svh-4rem)] self-start overflow-y-auto xl:sticky xl:top-8 xl:block" data-table-of-contents data-pagefind-ignore data-astro-cid-3tbazgeo><nav aria-label="目录" class="border-border border-s ps-5" data-astro-cid-3tbazgeo><h2 class="text-foreground mb-3 text-sm font-semibold" data-astro-cid-3tbazgeo>目录</h2><ol class="space-y-2 text-sm leading-5" data-astro-cid-3tbazgeo><li style="--toc-depth: 0" data-astro-cid-3tbazgeo><a href="#前言" class="toc-link block py-0.5 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>前言</a></li><li style="--toc-depth: 0" data-astro-cid-3tbazgeo><a href="#实施条件" class="toc-link block py-0.5 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>实施条件</a></li><li style="--toc-depth: 0" data-astro-cid-3tbazgeo><a href="#配置" class="toc-link block py-0.5 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>配置</a></li><li style="--toc-depth: 1" data-astro-cid-3tbazgeo><a href="#申请-tailscale-auth-key" class="toc-link block py-0.5 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>申请 Tailscale Auth Key</a></li><li style="--toc-depth: 1" data-astro-cid-3tbazgeo><a href="#覆写脚本" class="toc-link block py-0.5 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>覆写脚本</a></li><li style="--toc-depth: 1" data-astro-cid-3tbazgeo><a href="#测试" class="toc-link block py-0.5 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>测试</a></li><li style="--toc-depth: 1" data-astro-cid-3tbazgeo><a href="#subnet-router" class="toc-link block py-0.5 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>Subnet Router</a></li><li style="--toc-depth: 0" data-astro-cid-3tbazgeo><a href="#小结" class="toc-link block py-0.5 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>小结</a></li></ol></nav></aside><dialog id="mobile-table-of-contents" class="mobile-toc bg-background/95 text-foreground border-border rounded-s-lg border border-e-0 p-0 shadow-2xl backdrop:bg-black/20 backdrop:backdrop-blur-[2px] xl:hidden" data-mobile-table-of-contents data-table-of-contents data-pagefind-ignore aria-labelledby="mobile-toc-title" data-astro-cid-3tbazgeo><div class="flex h-full flex-col" data-astro-cid-3tbazgeo><div class="border-border flex shrink-0 items-center justify-between border-b px-4 py-3" data-astro-cid-3tbazgeo><h2 id="mobile-toc-title" class="text-base font-semibold" data-astro-cid-3tbazgeo>目录</h2><button type="button" class="hover:text-accent grid size-10 place-items-center" data-close-mobile-table-of-contents aria-label="Close menu" data-astro-cid-3tbazgeo><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="size-5" viewBox="0 0 24 24" data-astro-cid-3tbazgeo="true"><path stroke="none" d="M0 0h24v24H0z" /><path d="M18 6 6 18M6 6l12 12" /></svg></button></div><nav aria-label="目录" class="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-contain px-4 py-4" data-mobile-toc-scroll tabindex="-1" data-astro-cid-3tbazgeo><ol class="space-y-3 text-sm leading-5" data-astro-cid-3tbazgeo><li style="--toc-depth: 0" data-astro-cid-3tbazgeo><a href="#前言" target="_self" class="toc-link block py-1 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>前言</a></li><li style="--toc-depth: 0" data-astro-cid-3tbazgeo><a href="#实施条件" target="_self" class="toc-link block py-1 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>实施条件</a></li><li style="--toc-depth: 0" data-astro-cid-3tbazgeo><a href="#配置" target="_self" class="toc-link block py-1 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>配置</a></li><li style="--toc-depth: 1" data-astro-cid-3tbazgeo><a href="#申请-tailscale-auth-key" target="_self" class="toc-link block py-1 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>申请 Tailscale Auth Key</a></li><li style="--toc-depth: 1" data-astro-cid-3tbazgeo><a href="#覆写脚本" target="_self" class="toc-link block py-1 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>覆写脚本</a></li><li style="--toc-depth: 1" data-astro-cid-3tbazgeo><a href="#测试" target="_self" class="toc-link block py-1 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>测试</a></li><li style="--toc-depth: 1" data-astro-cid-3tbazgeo><a href="#subnet-router" target="_self" class="toc-link block py-1 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>Subnet Router</a></li><li style="--toc-depth: 0" data-astro-cid-3tbazgeo><a href="#小结" target="_self" class="toc-link block py-1 ps-[calc(var(--toc-depth)*0.875rem)]" data-toc-link data-state="unread" data-astro-cid-3tbazgeo>小结</a></li></ol></nav></div></dialog><script data-astro-rerun>
+  function initTableOfContents() {
+    window.__tocCleanup?.();
+
+    const tocRoots = Array.from(
+      document.querySelectorAll("[data-table-of-contents]")
+    );
+    if (tocRoots.length === 0) return;
+
+    const links = tocRoots.flatMap(toc =>
+      Array.from(toc.querySelectorAll("[data-toc-link]"))
+    );
+    const itemsById = new Map();
+
+    for (const link of links) {
+      const id = decodeURIComponent(link.hash.slice(1));
+      const existingItem = itemsById.get(id);
+
+      if (existingItem) {
+        existingItem.links.push(link);
+      } else {
+        const heading = document.getElementById(id);
+        if (heading) itemsById.set(id, { id, heading, links: [link] });
+      }
+    }
+
+    const items = Array.from(itemsById.values());
+
+    if (items.length === 0) return;
+
+    const abortController = new AbortController();
+    const mobileToc = document.querySelector("[data-mobile-table-of-contents]");
+    const closeMobileTocButton = mobileToc?.querySelector(
+      "[data-close-mobile-table-of-contents]"
+    );
+    const mobileTocTrigger = document.querySelector(
+      "[data-button='back-to-top']"
+    );
+    const mobileTocTriggerContainer =
+      document.querySelector("#btt-btn-container");
+    const reducedMotionMediaQuery = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    );
+    const closeAnimationDuration = 180;
+    let frameId = 0;
+    let closeTimer = 0;
+    let activeId = "";
+    let pendingNavigation = null;
+
+    function finishClosingMobileToc() {
+      if (!(mobileToc instanceof HTMLDialogElement)) return;
+
+      delete mobileToc.dataset.closing;
+      mobileToc.close();
+      mobileTocTrigger?.setAttribute("aria-expanded", "false");
+      delete mobileTocTriggerContainer?.dataset.tocOpen;
+      delete document.documentElement.dataset.mobileTocOpen;
+
+      if (pendingNavigation) {
+        const { heading, href } = pendingNavigation;
+        pendingNavigation = null;
+        history.pushState(null, "", href);
+        heading.scrollIntoView({
+          behavior: reducedMotionMediaQuery.matches ? "auto" : "smooth",
+          block: "start",
+        });
+      }
+    }
+
+    function closeMobileToc(navigation = null) {
+      if (navigation) pendingNavigation = navigation;
+
+      if (
+        !(mobileToc instanceof HTMLDialogElement) ||
+        !mobileToc.open ||
+        mobileToc.dataset.closing !== undefined
+      )
+        return;
+
+      if (reducedMotionMediaQuery.matches) {
+        finishClosingMobileToc();
+        return;
+      }
+
+      mobileToc.dataset.closing = "";
+      closeTimer = window.setTimeout(
+        finishClosingMobileToc,
+        closeAnimationDuration
+      );
+    }
+
+    function setActive(id) {
+      if (!id || id === activeId) return;
+      const activeIndex = items.findIndex(item => item.id === id);
+      if (activeIndex < 0) return;
+
+      activeId = id;
+      let activeLinks = [];
+
+      for (const [index, item] of items.entries()) {
+        const state =
+          index < activeIndex
+            ? "read"
+            : index === activeIndex
+              ? "active"
+              : "unread";
+
+        for (const link of item.links) {
+          link.dataset.state = state;
+
+          if (state === "active") {
+            activeLinks.push(link);
+            link.setAttribute("aria-current", "location");
+          } else {
+            link.removeAttribute("aria-current");
+          }
+        }
+      }
+
+      for (const link of activeLinks) {
+        if (link.offsetParent) {
+          link.scrollIntoView({ block: "nearest", inline: "nearest" });
+        }
+      }
+    }
+
+    function updateActiveHeading() {
+      frameId = 0;
+      const activationLine = Math.min(window.innerHeight * 0.25, 160);
+      let current = items[0];
+
+      for (const item of items) {
+        if (item.heading.getBoundingClientRect().top > activationLine) break;
+        current = item;
+      }
+
+      const reachedPageEnd =
+        window.innerHeight + window.scrollY >=
+        document.documentElement.scrollHeight - 2;
+
+      setActive(reachedPageEnd ? items.at(-1).id : current.id);
+    }
+
+    function scheduleUpdate() {
+      if (frameId) return;
+      frameId = requestAnimationFrame(updateActiveHeading);
+    }
+
+    window.addEventListener("scroll", scheduleUpdate, {
+      passive: true,
+      signal: abortController.signal,
+    });
+    window.addEventListener("resize", scheduleUpdate, {
+      passive: true,
+      signal: abortController.signal,
+    });
+    window.addEventListener("hashchange", scheduleUpdate, {
+      signal: abortController.signal,
+    });
+
+    for (const item of items) {
+      for (const link of item.links) {
+        link.addEventListener(
+          "click",
+          event => {
+            setActive(item.id);
+
+            if (mobileToc?.contains(link)) {
+              event.preventDefault();
+              closeMobileToc({
+                heading: item.heading,
+                href: link.getAttribute("href"),
+              });
+            }
+          },
+          { signal: abortController.signal }
+        );
+      }
+    }
+
+    closeMobileTocButton?.addEventListener("click", () => closeMobileToc(), {
+      signal: abortController.signal,
+    });
+    mobileToc?.addEventListener(
+      "click",
+      event => {
+        if (
+          event.target === mobileToc &&
+          mobileToc instanceof HTMLDialogElement
+        ) {
+          closeMobileToc();
+        }
+      },
+      { signal: abortController.signal }
+    );
+    mobileToc?.addEventListener(
+      "cancel",
+      event => {
+        event.preventDefault();
+        closeMobileToc();
+      },
+      { signal: abortController.signal }
+    );
+
+    window.__tocCleanup = () => {
+      abortController.abort();
+      if (frameId) cancelAnimationFrame(frameId);
+      if (closeTimer) clearTimeout(closeTimer);
+      delete document.documentElement.dataset.mobileTocOpen;
+    };
+
+    document.addEventListener(
+      "astro:before-swap",
+      () => window.__tocCleanup?.(),
+      { once: true, signal: abortController.signal }
+    );
+
+    updateActiveHeading();
+  }
+
+  initTableOfContents();
+</script></main><footer class="site-layout mt-auto"><div class="border-border flex flex-col items-center justify-between gap-2 border-t py-5 sm:flex-row-reverse sm:gap-3 sm:py-4"><div class="flex flex-wrap items-center gap-1"><a href="https://github.com/EmmetZ" title="Baiyx's Blog on Github" class="group inline-flex items-center gap-1 hover:text-accent p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M9 19c-4.3 1.4-4.3-2.5-6-3m12 5v-3.5c0-1 .1-1.4-.5-2 2.8-.3 5.5-1.4 5.5-6a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 4.6 2.7 5.7 5.5 6-.6.6-.6 1.2-.5 2V21" /></svg><span class="sr-only">Baiyx&#39;s Blog on Github</span></a><a href="mailto:ibaiyxx@gmail.com" title="Send an email to Baiyx's Blog" class="group inline-flex items-center gap-1 hover:text-accent p-2 hover:rotate-6 sm:p-1"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="inline-block size-6 scale-125 fill-transparent stroke-current stroke-2 opacity-90 group-hover:fill-transparent sm:scale-110" viewBox="0 0 24 24"><path stroke="none" d="M0 0h24v24H0z" /><path d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="m3 7 9 6 9-6" /></svg><span class="sr-only">Send an email to Baiyx&#39;s Blog</span></a></div><div class="text-muted-foreground/90 text-center text-sm sm:text-base"><span class="whitespace-nowrap">© 2026 Baiyx</span> <span class="text-muted-foreground/60" aria-hidden="true">|</span> <span class="text-muted-foreground">Built by <a href="https://github.com/satnaing/astro-paper" class="hover:text-accent decoration-dashed underline-offset-4 hover:underline focus-visible:no-underline" target="_blank" rel="noopener noreferrer">AstroPaper</a> &amp; <a href="https://astro.build" class="hover:text-accent decoration-dashed underline-offset-4 hover:underline focus-visible:no-underline" target="_blank" rel="noopener noreferrer">Astro</a></span></div></div></footer><script type="module">var e=`theme`,t=[`system`,`light`,`dark`],n={system:`light`,light:`dark`,dark:`system`},r={system:`labelSystem`,light:`labelLight`,dark:`labelDark`},i=window.matchMedia(`(prefers-color-scheme: dark)`);function a(e){return t.includes(e)}function o(){try{let t=localStorage.getItem(e);return a(t)?t:null}catch{return null}}function s(){let e=document.documentElement.dataset.themeMode;return a(e)?e:o()??`system`}function c(t){try{localStorage.setItem(e,t)}catch{}}function l(e){return e===`system`?i.matches?`dark`:`light`:e}function u(e){let t=document.querySelectorAll(`.theme-toggle`);for(let n of t){let t=`${n.dataset.labelAction??`Theme`}: ${n.dataset[r[e]]??e}`;n.title=t,n.setAttribute(`aria-label`,t),n.dataset.mode=e}}function d(){let e=window.getComputedStyle(document.body).backgroundColor;document.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`,e)}function f(e=s()){let t=l(e),n=document.documentElement;n.dataset.theme=t,n.dataset.themeMode=e,n.classList.toggle(`dark`,t===`dark`),u(e),d()}function p(e){c(e),f(e)}function m(){f()}function h(e){let t=document.querySelector(`meta[name='theme-color']`)?.getAttribute(`content`);t&&e.newDocument.querySelector(`meta[name='theme-color']`)?.setAttribute(`content`,t)}var g=window;g.__themeListenersBound||(g.__themeListenersBound=!0,document.addEventListener(`click`,e=>{let t=e.target;!(t instanceof Element)||!t.closest(`.theme-toggle`)||p(n[s()])}),document.addEventListener(`astro:after-swap`,m),document.addEventListener(`astro:before-swap`,h),i.addEventListener(`change`,()=>{s()===`system`&&f()})),m();</script></body></html><script data-astro-rerun>
+  function createProgressBar() {
+    const progressContainer = document.createElement("div");
+    progressContainer.className =
+      "progress-container fixed top-0 z-10 h-1 w-full bg-background";
+
+    const progressBar = document.createElement("div");
+    progressBar.className = "progress-bar h-1 w-0 bg-accent";
+    progressBar.id = "myBar";
+
+    progressContainer.appendChild(progressBar);
+    document.body.appendChild(progressContainer);
+  }
+  createProgressBar();
+
+  function updateScrollProgress() {
+    document.addEventListener("scroll", () => {
+      const winScroll =
+        document.body.scrollTop || document.documentElement.scrollTop;
+      const height =
+        document.documentElement.scrollHeight -
+        document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      if (document) {
+        const myBar = document.getElementById("myBar");
+        if (myBar) {
+          myBar.style.width = scrolled + "%";
+        }
+      }
+    });
+  }
+  updateScrollProgress();
+
+  function addHeadingLinks() {
+    const headings = Array.from(
+      document.querySelectorAll("h2, h3, h4, h5, h6")
+    );
+    for (const heading of headings) {
+      heading.classList.add("group");
+      const link = document.createElement("a");
+      link.className =
+        "heading-link ms-2 no-underline opacity-75 md:opacity-0 md:group-hover:opacity-100 md:focus:opacity-100";
+      link.href = "#" + heading.id;
+
+      const span = document.createElement("span");
+      span.ariaHidden = "true";
+      span.innerText = "#";
+      link.appendChild(span);
+      heading.appendChild(link);
+    }
+  }
+  addHeadingLinks();
+
+  function attachCopyButtons() {
+    const copyButtonLabel = "Copy";
+    const codeBlocks = Array.from(document.querySelectorAll("pre"));
+
+    for (const codeBlock of codeBlocks) {
+      const wrapper = document.createElement("div");
+      wrapper.style.position = "relative";
+
+      // The syntax transformer writes this inline; avoid forcing style recalculation.
+      const hasFileNameOffset =
+        codeBlock.style.getPropertyValue("--file-name-offset").trim() !== "";
+
+      const topClass = hasFileNameOffset
+        ? "top-(--file-name-offset)"
+        : "-top-3";
+
+      const copyButton = document.createElement("button");
+      copyButton.className = `copy-code absolute end-3 ${topClass} rounded bg-muted border border-muted px-2 py-1 text-xs leading-4 text-foreground font-medium`;
+      copyButton.innerHTML = copyButtonLabel;
+      codeBlock.setAttribute("tabindex", "0");
+      codeBlock.appendChild(copyButton);
+
+      codeBlock?.parentNode?.insertBefore(wrapper, codeBlock);
+      wrapper.appendChild(codeBlock);
+
+      copyButton.addEventListener("click", async () => {
+        await copyCode(codeBlock, copyButton);
+      });
+    }
+
+    async function copyCode(block, button) {
+      const code = block.querySelector("code");
+      const text = code?.innerText;
+
+      await navigator.clipboard.writeText(text ?? "");
+
+      button.innerText = "Copied";
+
+      setTimeout(() => {
+        button.innerText = copyButtonLabel;
+      }, 700);
+    }
+  }
+  attachCopyButtons();
+
+  /** Accessible image lightbox for article images. */
+  function initLightbox() {
+    const article = document.getElementById("article");
+    if (!article) return;
+
+    const prefersReducedMotion = () =>
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    let overlay = null;
+    let lastFocused = null;
+
+    // Defer attribute mutations so they don't push the LCP timestamp.
+    // Event listeners below use delegation and don't need the attributes to exist yet.
+    requestAnimationFrame(() => {
+      const images = Array.from(article.querySelectorAll("img"));
+      for (const image of images) {
+        if (image.closest("a")) continue;
+        image.setAttribute("role", "button");
+        image.setAttribute("tabindex", "0");
+        image.setAttribute("aria-haspopup", "dialog");
+        image.setAttribute(
+          "aria-label",
+          image.alt ? `Zoom image: ${image.alt}` : "Zoom image"
+        );
+      }
+    });
+
+    function open(src, alt, trigger) {
+      if (overlay) return;
+      lastFocused = trigger ?? document.activeElement;
+
+      overlay = document.createElement("div");
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+      overlay.setAttribute(
+        "aria-label",
+        alt ? `Image preview: ${alt}` : "Image preview"
+      );
+      overlay.className =
+        "fixed inset-0 z-50 flex cursor-zoom-out items-center justify-center bg-black/70 backdrop-blur-sm opacity-0 transition-opacity duration-200 motion-reduce:transition-none";
+
+      const closeButton = document.createElement("button");
+      closeButton.type = "button";
+      closeButton.setAttribute("aria-label", "Close image preview");
+      closeButton.className =
+        "absolute end-4 top-4 rounded p-2 text-3xl leading-none text-white";
+      closeButton.innerHTML = "&#10005;";
+      closeButton.addEventListener("click", close);
+
+      const image = document.createElement("img");
+      image.src = src;
+      image.alt = "";
+      image.className =
+        "max-h-[90dvh] max-w-[90dvw] cursor-default object-contain";
+
+      overlay.append(closeButton, image);
+      overlay.addEventListener("click", e => {
+        if (e.target === overlay && currentScale <= 1) close();
+      });
+
+      let currentScale = 1;
+      let translateX = 0;
+      let translateY = 0;
+      let initialDist = 0;
+      let initialScale = 1;
+      let panStartX = 0;
+      let panStartY = 0;
+      let panStartTranslateX = 0;
+      let panStartTranslateY = 0;
+      let lastTapTime = 0;
+
+      function applyTransform() {
+        image.style.transform = `scale(${currentScale}) translate(${translateX}px, ${translateY}px)`;
+      }
+
+      function resetTransform() {
+        currentScale = 1;
+        translateX = 0;
+        translateY = 0;
+        image.style.transform = "";
+      }
+
+      overlay.addEventListener(
+        "touchstart",
+        e => {
+          const t = e.touches;
+          if (t.length === 2) {
+            initialDist = Math.hypot(
+              t[1].clientX - t[0].clientX,
+              t[1].clientY - t[0].clientY
+            );
+            initialScale = currentScale;
+          } else if (t.length === 1) {
+            const now = Date.now();
+            if (now - lastTapTime < 300) {
+              e.preventDefault();
+              if (currentScale > 1) {
+                resetTransform();
+              } else {
+                currentScale = 2;
+                translateX = 0;
+                translateY = 0;
+                applyTransform();
+              }
+              lastTapTime = 0;
+              panStartX = t[0].clientX;
+              panStartY = t[0].clientY;
+              panStartTranslateX = translateX;
+              panStartTranslateY = translateY;
+            } else {
+              lastTapTime = now;
+              if (currentScale > 1) {
+                panStartX = t[0].clientX;
+                panStartY = t[0].clientY;
+                panStartTranslateX = translateX;
+                panStartTranslateY = translateY;
+              }
+            }
+          }
+        },
+        { passive: false }
+      );
+
+      overlay.addEventListener(
+        "touchmove",
+        e => {
+          const t = e.touches;
+          if (t.length === 2) {
+            e.preventDefault();
+            const dist = Math.hypot(
+              t[1].clientX - t[0].clientX,
+              t[1].clientY - t[0].clientY
+            );
+            currentScale = Math.min(
+              4,
+              Math.max(1, initialScale * (dist / initialDist))
+            );
+            applyTransform();
+          } else if (t.length === 1) {
+            if (currentScale > 1) {
+              e.preventDefault();
+              translateX =
+                panStartTranslateX + (t[0].clientX - panStartX) / currentScale;
+              translateY =
+                panStartTranslateY + (t[0].clientY - panStartY) / currentScale;
+              const maxX = Math.max(
+                0,
+                (image.clientWidth - overlay.clientWidth / currentScale) / 2
+              );
+              const maxY = Math.max(
+                0,
+                (image.clientHeight - overlay.clientHeight / currentScale) / 2
+              );
+              translateX = Math.min(maxX, Math.max(-maxX, translateX));
+              translateY = Math.min(maxY, Math.max(-maxY, translateY));
+              applyTransform();
+            } else {
+              e.preventDefault();
+            }
+          }
+        },
+        { passive: false }
+      );
+
+      overlay.addEventListener("touchend", e => {
+        if (e.touches.length === 0 && currentScale <= 1.05) {
+          resetTransform();
+        }
+      });
+
+      overlay.addEventListener("touchcancel", e => {
+        if (e.touches.length === 0 && currentScale <= 1.05) {
+          resetTransform();
+        }
+      });
+
+      document.body.appendChild(overlay);
+      document.body.style.overflow = "hidden";
+      document.addEventListener("keydown", onKeyDown);
+      window.__closeLightbox = close;
+
+      requestAnimationFrame(() => overlay?.classList.add("opacity-100"));
+      closeButton.focus();
+    }
+
+    function close() {
+      if (!overlay) return;
+      const el = overlay;
+      overlay = null;
+      window.__closeLightbox = null;
+
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = "";
+      lastFocused?.focus();
+      lastFocused = null;
+
+      if (prefersReducedMotion()) {
+        el.remove();
+        return;
+      }
+      const remove = () => el.remove();
+      el.addEventListener("transitionend", remove, { once: true });
+      setTimeout(remove, 250); // fallback in case transitionend never fires
+      el.classList.remove("opacity-100");
+    }
+
+    function onKeyDown(e) {
+      if (e.key === "Escape") {
+        close();
+      } else if (e.key === "Tab") {
+        trapFocus(e);
+      }
+    }
+
+    // Keep keyboard focus inside the open dialog.
+    function trapFocus(e) {
+      if (!overlay) return;
+      const focusables = overlay.querySelectorAll(
+        'a[href], button, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+
+    function triggerFromEvent(e) {
+      const image = e.target.closest("img");
+      if (!image || !article.contains(image) || image.closest("a")) return null;
+      return image;
+    }
+
+    function activate(image) {
+      open(image.currentSrc || image.src, image.alt, image);
+    }
+
+    article.addEventListener("click", e => {
+      const image = triggerFromEvent(e);
+      if (!image) return;
+      e.preventDefault();
+      activate(image);
+    });
+
+    article.addEventListener("keydown", e => {
+      if (e.key !== "Enter" && e.key !== " " && e.key !== "Spacebar") return;
+      const image = triggerFromEvent(e);
+      if (!image) return;
+      e.preventDefault();
+      activate(image);
+    });
+  }
+  initLightbox();
+
+  if (!window.__lightboxSwapBound) {
+    window.__lightboxSwapBound = true;
+    document.addEventListener("astro:before-swap", () =>
+      window.__closeLightbox?.()
+    );
+  }
+
+  document.addEventListener("astro:after-swap", () =>
+    window.scrollTo({ left: 0, top: 0, behavior: "instant" })
+  );
+</script>

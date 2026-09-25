@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="51.2 61.9 320 320" fill="none">
+  <g transform="translate(512 0) scale(-1 1)">
+    <path d="M244 28C224 52 211 83 226 113" stroke="#658C98" stroke-width="7" stroke-linecap="round"/>
+    <g transform="rotate(-23 226 113)">
+      <path d="M226 113V133" stroke="#658C98" stroke-width="6" stroke-linecap="round"/>
+      <path d="M137 252C149 232 149 210 155 188C163 156 188 135 226 135C264 135 289 156 297 188C303 210 303 232 315 252C275 270 177 270 137 252Z" fill="#C4EBF3" fill-opacity=".65" stroke="#6EA9BA" stroke-width="6" stroke-linejoin="round"/>
+      <path d="M174 204C178 182 191 168 207 163" stroke="#FFF" stroke-opacity=".9" stroke-width="10" stroke-linecap="round"/>
+      <ellipse cx="226" cy="252" rx="89" ry="15" fill="#B0DFE9" fill-opacity=".55" stroke="#6EA9BA" stroke-width="6"/>
+      <path d="M226 153V274" stroke="#658C98" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="226" cy="260" r="13" fill="#F3B7C6" stroke="#B97D91" stroke-width="4"/>
+      <path d="M226 273C223 285 223 291 228 301" stroke="#658C98" stroke-width="4" stroke-linecap="round"/>
+      <path d="M208 298C191 332 249 347 232 380C219 405 221 426 238 448L287 448C270 426 268 405 281 380C298 347 240 332 257 298Z" fill="#F6C4D1" stroke="#C78C9F" stroke-width="5" stroke-linejoin="round"/>
+      <path d="M219 312C214 334 260 352 249 377" stroke="#FFEAF0" stroke-width="7" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>
